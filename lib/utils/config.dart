@@ -37,5 +37,5 @@ class Config {
       borderRadius: BorderRadius.all(Radius.circular(8)),
       borderSide: BorderSide(color: Colors.red));
 
-  static const primaryColor = Color.fromARGB(255, 43, 47, 44);
+  static const primaryColor = Color.fromARGB(255, 16, 22, 86);
 }

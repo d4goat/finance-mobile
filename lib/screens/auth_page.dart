@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/main.dart';
+import 'package:frontend/provider/dio_provider.dart';
 import 'package:frontend/utils/config.dart';
 import 'package:provider/provider.dart';
 import 'package:frontend/models/auth_model.dart';
@@ -12,7 +14,7 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
   final _formKey = GlobalKey<FormState>();
-  final _kosIdController = TextEditingController();
+  final _nomorController = TextEditingController();
   final _ktpController = TextEditingController();
 
   @override
@@ -38,7 +40,7 @@ class _AuthPageState extends State<AuthPage> {
             ),
             const Center(
               child: Text(
-                "Selamat Datang Penghuni",
+                "Selamat Datang",
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
             ),
@@ -63,7 +65,7 @@ class _AuthPageState extends State<AuthPage> {
                     ),
                     Config.spaceSmall,
                     TextFormField(
-                      controller: _kosIdController,
+                      controller: _nomorController,
                       cursorColor: Colors.black,
                       decoration: const InputDecoration(
                           hintText: 'Masukkan Nomor Kamar',
@@ -86,10 +88,15 @@ class _AuthPageState extends State<AuthPage> {
                                       BorderRadius.all(Radius.circular(5))),
                               backgroundColor: Config.primaryColor,
                             ),
-                            onPressed: () {
-                              setState(() {
-                                Navigator.of(context).pushNamed('home');
-                              });
+                            onPressed: () async {
+                              final data = await DioProvider().getPenghuni(
+                                  _ktpController.text, _nomorController.text);
+                              if (data != null) {
+                                print(data);
+                                auth.loginSuccess();
+                                MyApp.navigatorKey.currentState!
+                                    .pushNamed('main');
+                              }
                             },
                             child: const Text(
                               "Cari",
