@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/tagihan_model.dart';
 import 'package:frontend/utils/config.dart';
 import 'package:intl/intl.dart';
 import 'package:movie_ticket_card/movie_ticket_card.dart';
@@ -13,11 +14,22 @@ class InvoicePage extends StatefulWidget {
 }
 
 class _InvoicePageState extends State<InvoicePage> {
+  late Tagihan tagihan;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (ModalRoute.of(context) != null) {
+      final args =
+          ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+      tagihan = args['tagihan'] as Tagihan;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     String currency(dynamic value) {
       final NumberFormat currencyFormat = NumberFormat.currency(
-          locale: 'id-ID', symbol: 'IDR ', decimalDigits: 0);
+          locale: 'id-ID', symbol: 'IDR ', decimalDigits: 1);
       String formattedValue = currencyFormat.format(value);
       formattedValue = formattedValue.replaceAll('.', ',');
       return formattedValue;
@@ -69,7 +81,7 @@ class _InvoicePageState extends State<InvoicePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'test',
+                        '${currency(tagihan.totalTagihan)}',
                         style: const TextStyle(
                             fontSize: 25, fontWeight: FontWeight.bold),
                       ),

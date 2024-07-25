@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/tagihan_card.dart';
 import 'package:frontend/models/kos_model.dart';
 import 'package:frontend/models/penghuni_model.dart';
+import 'package:frontend/models/tagihan_model.dart';
 import 'package:frontend/provider/dio_provider.dart';
 import 'package:frontend/utils/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,11 +18,13 @@ class _HomePageState extends State<HomePage> {
   Penghuni? penghuni;
   Kos? kos;
   String uuid = '';
+  List<Tagihan> tagihanList = [];
 
   @override
   void initState() {
     super.initState();
     fetchKosData();
+    fetchTagihan();
   }
 
   Future<void> fetchKosData() async {
@@ -38,98 +42,66 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> fetchTagihan() async {
+    try {
+      final List<Tagihan> response = await DioProvider().getTagihanBelumLunas();
+
+      if (response != null && response.isNotEmpty) {
+        setState(() {
+          tagihanList = response;
+        });
+      } else {
+        print('No data received from API');
+      }
+    } catch (e) {
+      print('Error fetching tagihan: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Config().init(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("${penghuni?.nama}"),
-        backgroundColor: Config.primaryColor,
-        titleTextStyle: const TextStyle(fontSize: 20, color: Colors.white),
+        title: Text("Kamar No : ${kos?.nomor}"),
+        titleTextStyle: const TextStyle(fontSize: 20, color: Colors.black),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(15),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Center(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 350,
-                        child: ClipRRect(
-                          child: Image.asset('assets/illust2.png'),
-                        ),
-                      ),
-                      Config.spaceSmall,
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black38,
-                              spreadRadius: 1,
-                              blurRadius: 3,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                          color: Colors.grey[200],
-                        ),
-                        width: Config.screenWidth,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text("data"),
-                              ElevatedButton(
-                                onPressed: () {
-                                  setState(() {
-                                    Navigator.of(context).pushNamed('invoice');
-                                  });
-                                },
-                                child: Text("butt"),
-                              ),
-                            ],
+      body: SafeArea(
+        child: CustomScrollView(
+          slivers: [
+            tagihanList.isEmpty
+                ? SliverToBoxAdapter(
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 350,
+                          child: ClipRRect(
+                            child: Image.asset('assets/illust2.png'),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                        Config.spaceSmall,
+                        const Text(
+                          "Tidak ada tagihan yang tersedia",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20),
+                        )
+                      ],
+                    ),
+                  )
+                : const SliverToBoxAdapter(child: Config.spaceSmall),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  return TagihanCard(tagihan: tagihanList[index]);
+                },
+                childCount: tagihanList.length,
+              ),
             ),
-          ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget kosDetailsWidget() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Kos ID: ${kos?.id}",
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        Text(
-          "UUID: ${kos?.uuid}",
-          style: TextStyle(fontSize: 16),
-        ),
-        Text(
-          "Harga: ${kos?.harga}",
-          style: TextStyle(fontSize: 16),
-        ),
-        Text(
-          "Keterangan: ${kos?.keterangan}",
-          style: TextStyle(fontSize: 16),
-        ),
-        // Add more details as needed
-      ],
     );
   }
 }

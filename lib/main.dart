@@ -3,6 +3,7 @@ import 'package:frontend/main_layout.dart';
 import 'package:frontend/models/auth_model.dart';
 import 'package:frontend/screens/auth_page.dart';
 import 'package:frontend/screens/invoice_page.dart';
+import 'package:frontend/screens/payment_page.dart';
 import 'package:frontend/utils/config.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -48,7 +49,8 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => const AuthPage(),
           'main': (context) => const MainLayout(),
-          'invoice': (context) => const InvoicePage()
+          'invoice': (context) => const InvoicePage(),
+          'bukti_pembayaran': (context) => const PaymentPage(),
         },
       ),
     );

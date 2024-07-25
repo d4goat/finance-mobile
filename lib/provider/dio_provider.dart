@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:frontend/models/kos_model.dart';
+import 'package:frontend/models/tagihan_model.dart';
 import 'package:frontend/utils/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -50,5 +51,74 @@ class DioProvider {
       print('Error fetching Kos data: $error');
     }
     return null;
+  }
+
+  Future<List<Tagihan>> getTagihanBelumLunas() async {
+    try {
+      Response response = await dio.get('/belum_lunas');
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = response.data;
+
+        List<Tagihan> tagihanList = jsonResponse
+            .map((json) => Tagihan.fromJson(json as Map<String, dynamic>))
+            .toList();
+        return tagihanList;
+      } else {
+        print('Failed to fetch data. ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching Tagihan data : $error');
+      return [];
+    }
+    return [];
+  }
+
+  Future<List<Tagihan>> getTagihanLunas() async {
+    try {
+      Response response = await dio.get('/lunas');
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = response.data;
+
+        List<Tagihan> tagihanList = jsonResponse
+            .map((json) => Tagihan.fromJson(json as Map<String, dynamic>))
+            .toList();
+        return tagihanList;
+      } else {
+        print('Failed to fetch data. ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching Tagihan data : $error');
+      return [];
+    }
+    return [];
+  }
+
+  Future<dynamic> uploadImage(String imagePath, dynamic uuid) async {
+    try {
+      String filename = imagePath.split('/').last;
+      FormData formData = FormData.fromMap({
+        "foto_bukti_pembayaran":
+            await MultipartFile.fromFile(imagePath, filename: filename)
+      });
+
+      Response response = await dio.post(
+        "/$uuid/bukti",
+        data: formData,
+        options: Options(
+          headers: {"Content-Type": "multipart/form-data"},
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        return response;
+      } else {
+        print("Failed to upload image: ${response.statusMessage}");
+        return null;
+      }
+    } catch (err) {
+      print("Error uploading image: $err");
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/main.dart';
+import 'package:frontend/models/tagihan_model.dart';
 import 'package:frontend/provider/dio_provider.dart';
 import 'package:frontend/utils/config.dart';
 import 'package:provider/provider.dart';
