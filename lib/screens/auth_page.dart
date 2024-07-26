@@ -93,7 +93,7 @@ class _AuthPageState extends State<AuthPage> {
                               final data = await DioProvider().getPenghuni(
                                   _ktpController.text, _nomorController.text);
                               if (data != null) {
-                                print(data);
+                                Config.logger.i(data);
                                 auth.loginSuccess();
                                 MyApp.navigatorKey.currentState!
                                     .pushNamed('main');

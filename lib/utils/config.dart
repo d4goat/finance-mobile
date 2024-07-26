@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 
 class Config {
   static MediaQueryData? mediaQueryData;
@@ -38,4 +39,6 @@ class Config {
       borderSide: BorderSide(color: Colors.red));
 
   static const primaryColor = Color.fromARGB(255, 16, 22, 86);
+
+  static final logger = Logger();
 }

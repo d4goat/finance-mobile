@@ -22,19 +22,25 @@ class DioProvider {
 
       if (response.data != null && response.data['data'] != null) {
         var uuid = response.data['data']['uuid'];
+        var nomor = response.data['data']['nomor'];
 
         if (uuid != null) {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('uuid_kos', uuid);
         }
 
+        if (nomor != null) {
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('nomor', nomor);
+        }
+
         return response.data;
       } else {
-        print('Data not found or incomplete.');
+        Config.logger.w('Data not found or incomplete.');
         return false;
       }
     } catch (error) {
-      print('Error: $error');
+      Config.logger.e('Error: $error');
       return false;
     }
   }
@@ -43,53 +49,53 @@ class DioProvider {
     try {
       Response response = await dio.get('/$uuid/kos');
 
-      print(response.data);
+      Config.logger.i(response.data);
       if (response.data != null) {
         return Kos.fromJson(response.data['data']);
       }
     } catch (error) {
-      print('Error fetching Kos data: $error');
+      Config.logger.f('Error fetching Kos data: $error');
     }
     return null;
   }
 
-  Future<List<Tagihan>> getTagihanBelumLunas() async {
+  Future<List<Tagihan>> getTagihanBelumLunas(dynamic nomor) async {
     try {
-      Response response = await dio.get('/belum_lunas');
+      Response response = await dio.post('/belum_lunas', data: {'nomor': nomor});
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonResponse = response.data;
+        List<dynamic> jsonResponse = response.data['data'];
 
         List<Tagihan> tagihanList = jsonResponse
             .map((json) => Tagihan.fromJson(json as Map<String, dynamic>))
             .toList();
         return tagihanList;
       } else {
-        print('Failed to fetch data. ${response.statusCode}');
+        Config.logger.e('Failed to fetch data. ${response.statusCode}');
       }
     } catch (error) {
-      print('Error fetching Tagihan data : $error');
+      Config.logger.f('Error fetching Tagihan data : $error');
       return [];
     }
     return [];
   }
 
-  Future<List<Tagihan>> getTagihanLunas() async {
+  Future<List<Tagihan>> getTagihanLunas(dynamic nomor) async {
     try {
-      Response response = await dio.get('/lunas');
+      Response response = await dio.post('/lunas', data: {'nomor': nomor});
 
       if (response.statusCode == 200) {
-        List<dynamic> jsonResponse = response.data;
+        List<dynamic> jsonResponse = response.data['data'];
 
         List<Tagihan> tagihanList = jsonResponse
             .map((json) => Tagihan.fromJson(json as Map<String, dynamic>))
             .toList();
         return tagihanList;
       } else {
-        print('Failed to fetch data. ${response.statusCode}');
+        Config.logger.e('Failed to fetch data. ${response.statusCode}');
       }
     } catch (error) {
-      print('Error fetching Tagihan data : $error');
+      Config.logger.f('Error fetching Tagihan data : $error');
       return [];
     }
     return [];
@@ -114,11 +120,11 @@ class DioProvider {
       if (response.statusCode == 200) {
         return response;
       } else {
-        print("Failed to upload image: ${response.statusMessage}");
+        Config.logger.e("Failed to upload image: ${response.statusMessage}");
         return null;
       }
     } catch (err) {
-      print("Error uploading image: $err");
+      Config.logger.f("Error uploading image: $err");
     }
   }
 }

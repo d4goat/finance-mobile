@@ -39,19 +39,39 @@ class _PaymentPageState extends State<PaymentPage> {
         if (image != null) {
           _image = File(image.path);
         } else {
-          print('No Image Selected');
+          Config.logger.w('No Image Selected');
         }
       });
     } catch (e) {
-      print('Error picking image: $e');
+      Config.logger.e('Error picking image: $e');
     }
   }
 
   Future<void> _uploadImage() async {
     if (_image == null) {
-      print("Please select an image first");
+      Config.logger.w("Please select an image first");
       return;
     }
+
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: const Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Config.spaceSmall,
+                  CircularProgressIndicator(),
+                  Config.spaceSmall,
+                  Text('Uploading image ...')
+                ],
+              ),
+            ),
+          );
+        });
 
     try {
       // Use the Dio provider to upload the image
@@ -59,19 +79,24 @@ class _PaymentPageState extends State<PaymentPage> {
           await dioProvider.uploadImage(_image!.path, tagihan.uuid);
 
       if (response.statusCode == 200 && response != null) {
-        print("Image uploaded successfully: ${response.data['message']}");
+        Config.logger
+            .i("Image uploaded successfully: ${response.data['message']}");
 
         // Navigate to another page if upload is successful
+        Config.logger.i(tagihan);
         Navigator.of(context).pushNamed(
           'invoice', // Ganti dengan nama halaman yang Anda tuju
           arguments: {'tagihan': tagihan}, // Kirim tagihan sebagai argumen
         );
       } else {
         if (response == null)
-          print("Failed to upload image: ${response.statusMessage}");
+          Config.logger.e("Failed to upload image: ${response.statusMessage}");
       }
     } catch (err) {
-      print("Error uploading image: $err");
+      Navigator.of(context).pop();
+      Config.logger.f("Error uploading image: $err");
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Error uploading image. Please try again ')));
     }
   }
 
@@ -79,28 +104,37 @@ class _PaymentPageState extends State<PaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Payment Proof Room'),
+        backgroundColor: Config.primaryColor,
+        title: const Text(
+          'Halaman Pembayaran',
+          style: TextStyle(color: Colors.white),
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
+        centerTitle: true,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             _image == null
-                ? Text('No image selected.')
+                ? const Text(
+                    'Tidak ada foto yang terpilih',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  )
                 : Image.file(
                     _image!,
-                    width: 300,
-                    height: 300,
+                    width: 400,
+                    height: 400,
                   ),
-            Config.spaceSmall,
+            Config.spaceMedium,
             ElevatedButton(
               onPressed: _pickImage,
               child: Text('Pick Image'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _uploadImage,
-              child: Text('Upload Image'),
+              child: const Text('Upload Image'),
             ),
           ],
         ),

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/models/kos_model.dart';
+import 'package:frontend/models/penghuni_model.dart';
 import 'package:frontend/models/tagihan_model.dart';
+import 'package:frontend/provider/dio_provider.dart';
 import 'package:frontend/utils/config.dart';
 import 'package:intl/intl.dart';
 import 'package:movie_ticket_card/movie_ticket_card.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class InvoicePage extends StatefulWidget {
   const InvoicePage({super.key});
@@ -15,6 +22,9 @@ class InvoicePage extends StatefulWidget {
 
 class _InvoicePageState extends State<InvoicePage> {
   late Tagihan tagihan;
+  Kos? kos;
+  Penghuni? penghuni;
+  String uuid = '';
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -25,11 +35,31 @@ class _InvoicePageState extends State<InvoicePage> {
     }
   }
 
+  Future<void> fetchKosData() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    uuid = prefs.getString('uuid_kos') ?? '';
+
+    if (uuid.isNotEmpty) {
+      final Kos? response = await DioProvider().getKos(uuid);
+      if (response != null) {
+        setState(() {
+          kos = response;
+          penghuni = kos?.penghuni;
+        });
+      }
+    }
+  }
+
+  void initState() {
+    super.initState();
+    fetchKosData();
+  }
+
   @override
   Widget build(BuildContext context) {
     String currency(dynamic value) {
       final NumberFormat currencyFormat = NumberFormat.currency(
-          locale: 'id-ID', symbol: 'IDR ', decimalDigits: 1);
+          locale: 'id-ID', symbol: 'Rp', decimalDigits: 1);
       String formattedValue = currencyFormat.format(value);
       formattedValue = formattedValue.replaceAll('.', ',');
       return formattedValue;
@@ -55,7 +85,8 @@ class _InvoicePageState extends State<InvoicePage> {
                     color: const Color.fromARGB(0, 0, 0, 0),
                     width: 0.1,
                     style: TicketBorderStyle.none)),
-            lineFromTop: 320,
+            lineFromTop: 300,
+            lineRadius: 12,
             child: Card(
               color: Colors.white,
               child: Column(
@@ -70,9 +101,9 @@ class _InvoicePageState extends State<InvoicePage> {
                     width: double.infinity,
                     alignment: Alignment.center,
                     child: const Text(
-                      'Pembayaran Berhasil!',
+                      'Upload Success!',
                       style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.w400,
                           color: Colors.black),
                     ),
@@ -95,8 +126,8 @@ class _InvoicePageState extends State<InvoicePage> {
                     child: Column(
                       children: [
                         DottedBorder(
-                          color: Colors.grey,
-                          dashPattern: const [8, 10],
+                          color: Colors.black,
+                          dashPattern: const [3, 7],
                           customPath: (size) {
                             return Path()
                               ..moveTo(0, size.height)
@@ -111,11 +142,11 @@ class _InvoicePageState extends State<InvoicePage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    "Booking Number",
+                                    "Nomor Kamar",
                                     style: TextStyle(fontSize: 16),
                                   ),
                                   Text(
-                                    "ua",
+                                    "${kos?.nomor}",
                                     style: const TextStyle(
                                         fontWeight: FontWeight.w600),
                                   ),
@@ -129,14 +160,16 @@ class _InvoicePageState extends State<InvoicePage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    "Hotel",
+                                    "Nama Penghuni",
                                     style: TextStyle(fontSize: 16),
                                   ),
                                   Text(
-                                    "la",
+                                    // Tampilkan hanya kata pertama dari penghuni.nama
+                                    penghuni!.nama?.split(' ').first ?? '',
                                     style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -148,30 +181,11 @@ class _InvoicePageState extends State<InvoicePage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    "Rooms",
+                                    'Tanggal Mulai Kost ',
                                     style: TextStyle(fontSize: 16),
                                   ),
                                   Text(
-                                    "la",
-                                    style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  const Text(
-                                    'Check-in Date ',
-                                    style: TextStyle(fontSize: 16),
-                                  ),
-                                  Text(
-                                    'su',
+                                    '${tagihan.tanggalMulai}',
                                     style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600),
@@ -186,11 +200,49 @@ class _InvoicePageState extends State<InvoicePage> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
-                                    'Check-out Date ',
+                                    'Tanggal Selesai Kost ',
                                     style: TextStyle(fontSize: 16),
                                   ),
                                   Text(
-                                    "la",
+                                    "${tagihan.tanggalSelesai}",
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Meteran Air ',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  Text(
+                                    "${tagihan.meteranAir}",
+                                    style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    'Meteran Listrik ',
+                                    style: TextStyle(fontSize: 16),
+                                  ),
+                                  Text(
+                                    "${tagihan.meteranListrik}",
                                     style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w600),
@@ -202,7 +254,7 @@ class _InvoicePageState extends State<InvoicePage> {
                           ),
                         ),
                         DottedBorder(
-                            dashPattern: const [8, 10],
+                            dashPattern: const [3, 7],
                             customPath: (size) {
                               return Path()
                                 ..moveTo(0, size.height)
@@ -216,11 +268,11 @@ class _InvoicePageState extends State<InvoicePage> {
                                       MainAxisAlignment.spaceBetween,
                                   children: [
                                     const Text(
-                                      "Amount",
+                                      "Total Tagihan",
                                       style: TextStyle(fontSize: 16),
                                     ),
                                     Text(
-                                      "lahh",
+                                      "${currency(tagihan.totalTagihan)}",
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 16),
@@ -238,7 +290,9 @@ class _InvoicePageState extends State<InvoicePage> {
                           height: 45,
                           width: Config.widthSize * 0.75,
                           child: ElevatedButton(
-                              onPressed: () async {},
+                              onPressed: () async {
+                                await _printAsPdf();
+                              },
                               style: ElevatedButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(10),
@@ -282,5 +336,144 @@ class _InvoicePageState extends State<InvoicePage> {
         ),
       )),
     );
+  }
+
+  Future<void> _printAsPdf() async {
+    try {
+      final pdf = pw.Document();
+      String currency(dynamic value) {
+        final NumberFormat currencyFormat = NumberFormat.currency(
+            locale: 'id-ID', symbol: 'Rp', decimalDigits: 1);
+        String formattedValue = currencyFormat.format(value);
+        formattedValue = formattedValue.replaceAll('.', ',');
+        return formattedValue;
+      }
+
+      pdf.addPage(pw.Page(build: (pw.Context context) {
+        return pw
+            .Column(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+          pw.Text("Invoice Tagihan",
+              style:
+                  pw.TextStyle(fontSize: 26, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 35),
+          pw.Table(
+              border: pw.TableBorder.all(),
+              columnWidths: const <int, pw.TableColumnWidth>{
+                0: pw.IntrinsicColumnWidth(),
+                1: pw.IntrinsicColumnWidth(),
+              },
+              children: [
+                pw.TableRow(children: [
+                  pw.Container(
+                      color: PdfColor.fromHex("#464545"),
+                      child: pw.Padding(
+                          padding: const pw.EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 12),
+                          child: pw.Text("Information",
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                  color: PdfColor.fromHex('#fff'))))),
+                  pw.Container(
+                      color: PdfColor.fromHex("#464545"),
+                      child: pw.Padding(
+                          padding: const pw.EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 12),
+                          child: pw.Text("Detail",
+                              style: pw.TextStyle(
+                                  fontWeight: pw.FontWeight.bold,
+                                  color: PdfColor.fromHex('#fff'))))),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("Nomor Kamar",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("${kos?.nomor}",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("Nama Penghuni",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("${penghuni?.nama}",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("Tanggal Mulai Kost",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("${tagihan.tanggalMulai}",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("Tanggal Selesai Kost",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("${tagihan.tanggalSelesai}",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("Meteran Air",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("${tagihan.meteranAir}",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("Meteran Listrik",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("${tagihan.meteranListrik}",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                ]),
+                pw.TableRow(children: [
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("Biaya Tagihan",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      child: pw.Text("${currency(tagihan.totalTagihan)}",
+                          style: pw.TextStyle(fontWeight: pw.FontWeight.bold))),
+                ]),
+              ])
+        ]);
+      }));
+      await Printing.layoutPdf(
+          onLayout: (PdfPageFormat format) async => pdf.save());
+    } catch (error) {
+      Config.logger.e('Error generating PDF : $error');
+    }
   }
 }

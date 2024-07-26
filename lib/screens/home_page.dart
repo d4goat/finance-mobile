@@ -18,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   Penghuni? penghuni;
   Kos? kos;
   String uuid = '';
+  String nomor = '';
   List<Tagihan> tagihanList = [];
 
   @override
@@ -44,17 +45,20 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchTagihan() async {
     try {
-      final List<Tagihan> response = await DioProvider().getTagihanBelumLunas();
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      nomor = prefs.getString('nomor') ?? '';
+      final List<Tagihan> response =
+          await DioProvider().getTagihanBelumLunas(nomor);
 
       if (response != null && response.isNotEmpty) {
         setState(() {
           tagihanList = response;
         });
       } else {
-        print('No data received from API');
+        Config.logger.w('No data received from API');
       }
     } catch (e) {
-      print('Error fetching tagihan: $e');
+      Config.logger.e('Error fetching tagihan: $e');
     }
   }
 
@@ -94,7 +98,7 @@ class _HomePageState extends State<HomePage> {
             SliverList(
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
-                  return TagihanCard(tagihan: tagihanList[index]);
+                  return TagihanBelumLunasCard(tagihan: tagihanList[index]);
                 },
                 childCount: tagihanList.length,
               ),

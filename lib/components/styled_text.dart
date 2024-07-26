@@ -1,5 +1,17 @@
 import 'package:flutter/material.dart';
 
+class UltraSuperTitleText extends StatelessWidget {
+  const UltraSuperTitleText(this.text, {super.key});
+
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    return Text(text,
+        style: const TextStyle(
+            fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white));
+  }
+}
+
 class SuperTitleText extends StatelessWidget {
   const SuperTitleText(this.text, {super.key});
 

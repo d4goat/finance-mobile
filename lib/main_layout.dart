@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:frontend/screens/account_page.dart';
 import 'package:frontend/screens/home_page.dart';
-import 'package:frontend/screens/invoice_page.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -25,7 +25,7 @@ class _MainLayoutState extends State<MainLayout> {
         }),
         children: const <Widget>[
           HomePage(),
-          InvoicePage(),
+          AccountPage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

@@ -1,3 +1,5 @@
+import 'package:frontend/models/penghuni_model.dart';
+
 class Tagihan {
   int? id;
   String? uuid;
@@ -18,28 +20,29 @@ class Tagihan {
   int? meteranAir;
   String? tanggalMulai;
   String? tanggalSelesai;
+  final Penghuni? penghuni;
 
-  Tagihan({
-    this.id,
-    this.uuid,
-    this.penghuniKosId,
-    this.mulai,
-    this.selesai,
-    this.statusBayar,
-    this.totalTagihan,
-    this.meteranListrikAwal,
-    this.meteranListrikAkhir,
-    this.meteranAirAwal,
-    this.meteranAirAkhir,
-    this.fotoMeteranAir,
-    this.mobil,
-    this.biayaMobil,
-    this.biayaKebersihan,
-    this.meteranListrik,
-    this.meteranAir,
-    this.tanggalMulai,
-    this.tanggalSelesai,
-  });
+  Tagihan(
+      {this.id,
+      this.uuid,
+      this.penghuniKosId,
+      this.mulai,
+      this.selesai,
+      this.statusBayar,
+      this.totalTagihan,
+      this.meteranListrikAwal,
+      this.meteranListrikAkhir,
+      this.meteranAirAwal,
+      this.meteranAirAkhir,
+      this.fotoMeteranAir,
+      this.mobil,
+      this.biayaMobil,
+      this.biayaKebersihan,
+      this.meteranListrik,
+      this.meteranAir,
+      this.tanggalMulai,
+      this.tanggalSelesai,
+      this.penghuni});
 
   factory Tagihan.fromJson(Map<String, dynamic> json) {
     return Tagihan(
@@ -62,6 +65,7 @@ class Tagihan {
       meteranAir: json['meteran_air'] as int?,
       tanggalMulai: json['tanggal_mulai'] as String?,
       tanggalSelesai: json['tanggal_selesai'] as String?,
+      penghuni: Penghuni.fromJson(json['penghuni_kos']),
     );
   }
 
@@ -86,6 +90,7 @@ class Tagihan {
       'meteran_air': meteranAir,
       'tanggal_mulai': tanggalMulai,
       'tanggal_selesai': tanggalSelesai,
+      'penghuni' : penghuni?.toJson()
     };
   }
 }
