@@ -20,6 +20,7 @@ class _HomePageState extends State<HomePage> {
   String uuid = '';
   String nomor = '';
   List<Tagihan> tagihanList = [];
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -38,6 +39,11 @@ class _HomePageState extends State<HomePage> {
         setState(() {
           kos = response;
           penghuni = kos?.penghuni;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
         });
       }
     }
@@ -68,44 +74,56 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Kamar No : ${kos?.nomor}"),
-        titleTextStyle: const TextStyle(fontSize: 20, color: Colors.black),
+        backgroundColor: Config.primaryColor,
+        titleTextStyle: const TextStyle(
+          fontSize: 20,
+        ),
         centerTitle: true,
         automaticallyImplyLeading: false,
       ),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            tagihanList.isEmpty
-                ? SliverToBoxAdapter(
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 350,
-                          child: ClipRRect(
-                            child: Image.asset('assets/illust2.png'),
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SafeArea(
+              child: CustomScrollView(
+                slivers: [
+                  tagihanList.isEmpty
+                      ? SliverToBoxAdapter(
+                          child: Column(
+                            children: [
+                              SizedBox(
+                                height: 350,
+                                child: ClipRRect(
+                                  child: Image.asset('assets/illust2.png'),
+                                ),
+                              ),
+                              Config.spaceSmall,
+                              const Text(
+                                "Tidak ada tagihan yang tersedia",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 20),
+                              )
+                            ],
                           ),
-                        ),
-                        Config.spaceSmall,
-                        const Text(
-                          "Tidak ada tagihan yang tersedia",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20),
                         )
-                      ],
+                      : const SliverToBoxAdapter(child: Config.spaceSmall),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (tagihanList[index].fotoBuktiPembayaran != null)
+                          return TagihanBelumLunasCard(
+                              tagihan: tagihanList[index]);
+                        else
+                          return TagihanPendingCard(
+                              tagihan: tagihanList[index]);
+                      },
+                      childCount: tagihanList.length,
                     ),
-                  )
-                : const SliverToBoxAdapter(child: Config.spaceSmall),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return TagihanBelumLunasCard(tagihan: tagihanList[index]);
-                },
-                childCount: tagihanList.length,
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

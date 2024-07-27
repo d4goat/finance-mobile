@@ -13,6 +13,7 @@ class Tagihan {
   int? meteranAirAwal;
   int? meteranAirAkhir;
   dynamic fotoMeteranAir;
+  dynamic fotoBuktiPembayaran;
   int? mobil;
   int? biayaMobil;
   int? biayaKebersihan;
@@ -35,6 +36,7 @@ class Tagihan {
       this.meteranAirAwal,
       this.meteranAirAkhir,
       this.fotoMeteranAir,
+      this.fotoBuktiPembayaran,
       this.mobil,
       this.biayaMobil,
       this.biayaKebersihan,
@@ -58,6 +60,7 @@ class Tagihan {
       meteranAirAwal: json['meteran_air_awal'] as int?,
       meteranAirAkhir: json['meteran_air_akhir'] as int?,
       fotoMeteranAir: json['foto_meteran_air'],
+      fotoBuktiPembayaran: json['foto_bukti_pembayaran'],
       mobil: json['mobil'] as int?,
       biayaMobil: json['biaya_mobil'] as int?,
       biayaKebersihan: json['biaya_kebersihan'] as int?,
@@ -83,6 +86,7 @@ class Tagihan {
       'meteran_air_awal': meteranAirAwal,
       'meteran_air_akhir': meteranAirAkhir,
       'foto_meteran_air': fotoMeteranAir,
+      'foto_bukti_pembayaran': fotoBuktiPembayaran,
       'mobil': mobil,
       'biaya_mobil': biayaMobil,
       'biaya_kebersihan': biayaKebersihan,

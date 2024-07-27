@@ -22,6 +22,7 @@ class _AccountPageState extends State<AccountPage> {
   String nomor = '';
   List<Tagihan> tagihanLunas = [];
   List<Tagihan> tagihanBelumLunas = [];
+  List<Tagihan> tagihanPending = []; // Separate list for pending confirmation
 
   @override
   void initState() {
@@ -55,20 +56,25 @@ class _AccountPageState extends State<AccountPage> {
       final List<Tagihan> responseBelumLunas =
           await DioProvider().getTagihanBelumLunas(nomor);
 
-      if (responseLunas != null && responseLunas.isNotEmpty) {
+      if (responseLunas.isNotEmpty) {
         setState(() {
           tagihanLunas = responseLunas;
         });
       } else {
-        Config.logger.w('No data recieved from API');
+        Config.logger.w('No data received from API');
       }
 
-      if (responseBelumLunas != null && responseBelumLunas.isNotEmpty) {
+      if (responseBelumLunas.isNotEmpty) {
         setState(() {
-          tagihanBelumLunas = responseBelumLunas;
+          tagihanBelumLunas = responseBelumLunas
+              .where((tagihan) => tagihan.fotoBuktiPembayaran == null)
+              .toList();
+          tagihanPending = responseBelumLunas
+              .where((tagihan) => tagihan.fotoBuktiPembayaran != null)
+              .toList();
         });
       } else {
-        Config.logger.w("No data recieved");
+        Config.logger.w("No data received");
       }
     } catch (error) {
       Config.logger.e("Error fetching tagihan : $error");
@@ -88,6 +94,7 @@ class _AccountPageState extends State<AccountPage> {
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
+            // Personal Information Section
             SliverToBoxAdapter(
               child: Container(
                 padding: const EdgeInsets.all(10),
@@ -177,6 +184,7 @@ class _AccountPageState extends State<AccountPage> {
             const SliverToBoxAdapter(
               child: Config.spaceSmall,
             ),
+            // Unpaid Bills Section
             SliverToBoxAdapter(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -192,18 +200,69 @@ class _AccountPageState extends State<AccountPage> {
             const SliverToBoxAdapter(
               child: Config.spaceSmall,
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return TagihanBelumLunasCard(
-                      tagihan: tagihanBelumLunas[index]);
-                },
-                childCount: tagihanBelumLunas.length,
-              ),
-            ),
+            tagihanBelumLunas.isEmpty
+                ? SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'No unpaid bills available',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                  )
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return TagihanBelumLunasCard(
+                            tagihan: tagihanBelumLunas[index]);
+                      },
+                      childCount: tagihanBelumLunas.length,
+                    ),
+                  ),
             const SliverToBoxAdapter(
               child: SizedBox(height: 30),
             ),
+            // Pending Confirmation Bills Section
+            SliverToBoxAdapter(
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                child: const Text(
+                  "Tagihan Menunggu Konfirmasi",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.black),
+                ),
+              ),
+            ),
+            const SliverToBoxAdapter(
+              child: Config.spaceSmall,
+            ),
+            tagihanPending.isEmpty
+                ? SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'No pending confirmations available',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                  )
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return TagihanPendingCard(
+                            tagihan: tagihanPending[index]);
+                      },
+                      childCount: tagihanPending.length,
+                    ),
+                  ),
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 30),
+            ),
+            // Paid Bills Section
             SliverToBoxAdapter(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -219,14 +278,25 @@ class _AccountPageState extends State<AccountPage> {
             const SliverToBoxAdapter(
               child: Config.spaceSmall,
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  return TagihanLunasCard(tagihan: tagihanLunas[index]);
-                },
-                childCount: tagihanLunas.length,
-              ),
-            ),
+            tagihanLunas.isEmpty
+                ? SliverToBoxAdapter(
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(vertical: 20),
+                      alignment: Alignment.center,
+                      child: const Text(
+                        'No paid bills available',
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                  )
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return TagihanLunasCard(tagihan: tagihanLunas[index]);
+                      },
+                      childCount: tagihanLunas.length,
+                    ),
+                  ),
           ],
         ),
       ),

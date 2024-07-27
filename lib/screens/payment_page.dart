@@ -117,14 +117,25 @@ class _PaymentPageState extends State<PaymentPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             _image == null
-                ? const Text(
-                    'Tidak ada foto yang terpilih',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ? Column(
+                    children: [
+                      SizedBox(
+                        height: 350,
+                        child: ClipRRect(
+                          child: Image.asset('assets/illust3.jpg'),
+                        ),
+                      ),
+                      const Text(
+                        'Tidak ada foto yang terpilih',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   )
                 : Image.file(
                     _image!,
-                    width: 400,
-                    height: 400,
+                    width: 450,
+                    height: 450,
                   ),
             Config.spaceMedium,
             ElevatedButton(
