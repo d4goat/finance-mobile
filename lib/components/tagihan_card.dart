@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:frontend/components/styled_text.dart';
 import 'package:frontend/models/tagihan_model.dart';
 import 'package:frontend/utils/config.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
 class TagihanLunasCard extends StatelessWidget {
@@ -22,56 +23,27 @@ class TagihanLunasCard extends StatelessWidget {
       return formattedCurrency;
     }
 
-    Future<void> _showAnnounceBillDialog() async {
-      await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text("Kirim bukti bayar"),
-              content: const SingleChildScrollView(
-                padding: EdgeInsets.all(10),
-                child: ListBody(
-                  children: [
-                    Text("Apakah anda ingin mengirimkan bukti pembayaran?")
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Tidak")),
-                TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed('bukti_pembayaran',
-                          arguments: {'tagihan': tagihan});
-                    },
-                    child: const Text("Ya"))
-              ],
-            );
-          });
-    }
-
     return Container(
       width: Config.screenWidth,
-      margin: const EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       height: 120,
       child: GestureDetector(
         child: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(13)),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black26,
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                    offset: Offset(0, 2))
-              ],
-              gradient: LinearGradient(colors: [
-                Color.fromARGB(255, 102, 255, 178),
-                Color.fromARGB(255, 0, 179, 89)
-              ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(13)),
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black26,
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: Offset(0, 2))
+            ],
+            // color: HexColor('#66bb6a'),
+
+            ///ANOTHER COLOR
+            ///
+            color: HexColor('#000'),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -93,7 +65,11 @@ class TagihanLunasCard extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   child: const Icon(
                     FontAwesomeIcons.circleCheck,
-                    color: Colors.white,
+                    // color: Colors.white,
+
+                    ///ANOTHER COLOR
+                    ///
+                    color: Colors.green,
                     size: 60,
                   ),
                 )
@@ -160,23 +136,25 @@ class TagihanBelumLunasCard extends StatelessWidget {
 
     return Container(
       width: Config.screenWidth,
-      margin: const EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       height: 120,
       child: GestureDetector(
         child: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(13)),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black26,
-                    spreadRadius: 1,
-                    blurRadius: 3,
-                    offset: Offset(0, 2))
-              ],
-              gradient: LinearGradient(colors: [
-                Color.fromARGB(255, 255, 102, 102),
-                Color.fromARGB(255, 204, 0, 0)
-              ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(13)),
+            boxShadow: const [
+              BoxShadow(
+                  color: Colors.black26,
+                  spreadRadius: 1,
+                  blurRadius: 2,
+                  offset: Offset(0, 2))
+            ],
+            // color: HexColor('#ee6056'),
+
+            ///ANOTHER COLOR
+            ///
+            color: HexColor('#000'),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -197,8 +175,12 @@ class TagihanBelumLunasCard extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   child: const Icon(
-                    FontAwesomeIcons.triangleExclamation,
-                    color: Colors.white,
+                    FontAwesomeIcons.circleXmark,
+                    // color: Colors.white,
+
+                    ///ANOTHER COLOR
+                    ///
+                    color: Colors.red,
                     size: 60,
                   ),
                 )
@@ -208,7 +190,6 @@ class TagihanBelumLunasCard extends StatelessWidget {
         ),
         onTap: () {
           _showAnnounceBillDialog();
-          ;
         },
       ),
     );
@@ -259,23 +240,24 @@ class TagihanPendingCard extends StatelessWidget {
 
     return Container(
       width: Config.screenWidth,
-      margin: const EdgeInsets.all(10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       height: 120,
       child: GestureDetector(
         child: Container(
-          decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(13)),
-              boxShadow: [
+          decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(13)),
+              boxShadow: const [
                 BoxShadow(
                     color: Colors.black26,
                     spreadRadius: 1,
-                    blurRadius: 3,
+                    blurRadius: 2,
                     offset: Offset(0, 2))
               ],
-              gradient: LinearGradient(colors: [
-                Color.fromARGB(255, 255, 235, 59),
-                Color.fromARGB(255, 255, 193, 7)
-              ], begin: Alignment.centerLeft, end: Alignment.centerRight)),
+              // color: HexColor('#ffeb3b')),
+
+              ///ANOTHER COLOR
+              ///
+              color: HexColor('#000')),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -296,8 +278,12 @@ class TagihanPendingCard extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 8),
                   child: const Icon(
-                    FontAwesomeIcons.circleXmark,
-                    color: Colors.white,
+                    FontAwesomeIcons.triangleExclamation,
+                    // color: Colors.white,
+
+                    ///ANOTHER COLOR
+                    ///
+                    color: Colors.amber,
                     size: 60,
                   ),
                 )

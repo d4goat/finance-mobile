@@ -38,7 +38,6 @@ class MyApp extends StatelessWidget {
                 GoogleFonts.libreFranklinTextTheme(Theme.of(context).textTheme),
             scaffoldBackgroundColor: Colors.white,
             bottomNavigationBarTheme: BottomNavigationBarThemeData(
-                backgroundColor: Colors.indigoAccent,
                 selectedItemColor: Colors.white,
                 showSelectedLabels: true,
                 showUnselectedLabels: false,

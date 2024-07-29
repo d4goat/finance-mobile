@@ -30,8 +30,11 @@ class _MainLayoutState extends State<MainLayout> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentPage,
-        backgroundColor: Color.fromARGB(255, 229, 229, 229),
+        backgroundColor: const Color.fromARGB(255, 229, 229, 229),
         selectedItemColor: const Color.fromARGB(255, 0, 146, 133),
+        unselectedItemColor: const Color.fromARGB(255, 74, 85, 104),
+        showUnselectedLabels: true,
+        unselectedFontSize: 14,
         selectedFontSize: 14,
         onTap: (page) {
           setState(() {
@@ -44,13 +47,13 @@ class _MainLayoutState extends State<MainLayout> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
               icon: Icon(
-                Icons.home_outlined,
-                size: 30,
+                FontAwesomeIcons.houseChimney,
+                size: 26,
               ),
-              label: "Home"),
+              label: " Home"),
           BottomNavigationBarItem(
               icon: Icon(
-                FontAwesomeIcons.user,
+                FontAwesomeIcons.userNinja,
                 size: 26,
               ),
               label: "Account"),

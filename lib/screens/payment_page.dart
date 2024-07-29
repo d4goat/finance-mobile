@@ -114,13 +114,12 @@ class _PaymentPageState extends State<PaymentPage> {
       ),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             _image == null
                 ? Column(
                     children: [
                       SizedBox(
-                        height: 350,
+                        height: 400,
                         child: ClipRRect(
                           child: Image.asset('assets/illust3.jpg'),
                         ),
@@ -140,7 +139,7 @@ class _PaymentPageState extends State<PaymentPage> {
             Config.spaceMedium,
             ElevatedButton(
               onPressed: _pickImage,
-              child: Text('Pick Image'),
+              child: const Text('Pick Image'),
             ),
             const SizedBox(height: 20),
             ElevatedButton(

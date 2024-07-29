@@ -61,7 +61,8 @@ class DioProvider {
 
   Future<List<Tagihan>> getTagihanBelumLunas(dynamic nomor) async {
     try {
-      Response response = await dio.post('/belum_lunas', data: {'nomor': nomor});
+      Response response =
+          await dio.post('/belum_lunas', data: {'nomor': nomor});
 
       if (response.statusCode == 200) {
         List<dynamic> jsonResponse = response.data['data'];
@@ -76,6 +77,26 @@ class DioProvider {
     } catch (error) {
       Config.logger.f('Error fetching Tagihan data : $error');
       return [];
+    }
+    return [];
+  }
+
+  Future<List<Tagihan>> getTagihanPending(dynamic nomor) async {
+    try {
+      Response response = await dio.post('/pending', data: {'nomor': nomor});
+
+      if (response.statusCode == 200) {
+        List<dynamic> jsonResponse = response.data['data'];
+
+        List<Tagihan> tagihanList = jsonResponse
+            .map((json) => Tagihan.fromJson(json as Map<String, dynamic>))
+            .toList();
+        return tagihanList;
+      } else {
+        Config.logger.e('Failed to fetch data. ${response.statusCode}');
+      }
+    } catch (err) {
+      Config.logger.f('Error fetching data : $err');
     }
     return [];
   }

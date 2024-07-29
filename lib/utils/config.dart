@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:logger/logger.dart';
 
 class Config {
@@ -38,7 +39,7 @@ class Config {
       borderRadius: BorderRadius.all(Radius.circular(8)),
       borderSide: BorderSide(color: Colors.red));
 
-  static const primaryColor = Color.fromARGB(255, 16, 22, 86);
+  static const primaryColor = Color.fromARGB(255, 32, 92, 62);
 
   static final logger = Logger();
 }

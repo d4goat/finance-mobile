@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
     Config().init(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text("Kamar No : ${kos?.nomor}"),
+        title: Text("Kamar No ${kos?.nomor ?? 'Alias'}"),
         backgroundColor: Config.primaryColor,
         titleTextStyle: const TextStyle(
           fontSize: 20,
@@ -86,42 +86,51 @@ class _HomePageState extends State<HomePage> {
               child: CircularProgressIndicator(),
             )
           : SafeArea(
-              child: CustomScrollView(
-                slivers: [
-                  tagihanList.isEmpty
-                      ? SliverToBoxAdapter(
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 350,
-                                child: ClipRRect(
-                                  child: Image.asset('assets/illust2.png'),
+              child: Container(
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                child: CustomScrollView(
+                  slivers: [
+                    tagihanList.isEmpty
+                        ? SliverToBoxAdapter(
+                            child: Column(
+                              children: [
+                                SizedBox(
+                                  height: 350,
+                                  child: ClipRRect(
+                                    child: Image.asset('assets/illust2.png'),
+                                  ),
                                 ),
-                              ),
+                                Config.spaceSmall,
+                                const Text(
+                                  "Tidak ada tagihan yang tersedia",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20),
+                                )
+                              ],
+                            ),
+                          )
+                        : SliverToBoxAdapter(
+                            child: Column(
+                            children: [
                               Config.spaceSmall,
                               const Text(
-                                "Tidak ada tagihan yang tersedia",
+                                "Oops, terdapat tagihan yang belum dibayar nih. Bayar Yuk!",
                                 style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 20),
-                              )
+                                    fontSize: 18, fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 10),
+                              ...tagihanList.map((tagihan) {
+                                if (tagihan.fotoBuktiPembayaran == null) {
+                                  return TagihanBelumLunasCard(
+                                      tagihan: tagihan);
+                                }
+                                return const SizedBox.shrink();
+                              }).toList()
                             ],
-                          ),
-                        )
-                      : const SliverToBoxAdapter(child: Config.spaceSmall),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        if (tagihanList[index].fotoBuktiPembayaran != null)
-                          return TagihanBelumLunasCard(
-                              tagihan: tagihanList[index]);
-                        else
-                          return TagihanPendingCard(
-                              tagihan: tagihanList[index]);
-                      },
-                      childCount: tagihanList.length,
-                    ),
-                  ),
-                ],
+                          )),
+                  ],
+                ),
               ),
             ),
     );

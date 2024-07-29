@@ -22,7 +22,10 @@ class _AccountPageState extends State<AccountPage> {
   String nomor = '';
   List<Tagihan> tagihanLunas = [];
   List<Tagihan> tagihanBelumLunas = [];
-  List<Tagihan> tagihanPending = []; // Separate list for pending confirmation
+  List<Tagihan> tagihanPending = [];
+  List<Tagihan> filteredTagihan = [];
+  String filter = 'Semua';
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -41,6 +44,7 @@ class _AccountPageState extends State<AccountPage> {
         setState(() {
           kos = response;
           penghuni = kos?.penghuni;
+          isLoading = false;
         });
       }
     }
@@ -55,30 +59,54 @@ class _AccountPageState extends State<AccountPage> {
           await DioProvider().getTagihanLunas(nomor);
       final List<Tagihan> responseBelumLunas =
           await DioProvider().getTagihanBelumLunas(nomor);
+      final List<Tagihan> responsePending =
+          await DioProvider().getTagihanPending(nomor);
 
       if (responseLunas.isNotEmpty) {
         setState(() {
           tagihanLunas = responseLunas;
         });
-      } else {
-        Config.logger.w('No data received from API');
       }
 
       if (responseBelumLunas.isNotEmpty) {
         setState(() {
-          tagihanBelumLunas = responseBelumLunas
-              .where((tagihan) => tagihan.fotoBuktiPembayaran == null)
-              .toList();
-          tagihanPending = responseBelumLunas
-              .where((tagihan) => tagihan.fotoBuktiPembayaran != null)
-              .toList();
+          tagihanBelumLunas = responseBelumLunas;
+          filterTagihan();
         });
-      } else {
-        Config.logger.w("No data received");
+      }
+      if (responsePending.isNotEmpty) {
+        setState(() {
+          tagihanPending = responsePending;
+          filterTagihan();
+        });
       }
     } catch (error) {
       Config.logger.e("Error fetching tagihan : $error");
     }
+  }
+
+  void filterTagihan() {
+    List<Tagihan> allTagihan = []
+      ..addAll(tagihanLunas)
+      ..addAll(tagihanBelumLunas)
+      ..addAll(tagihanPending);
+
+    setState(() {
+      switch (filter) {
+        case 'Belum Lunas':
+          filteredTagihan = tagihanBelumLunas;
+          break;
+        case 'Menunggu Konfirmasi':
+          filteredTagihan = tagihanPending;
+          break;
+        case 'Lunas':
+          filteredTagihan = tagihanLunas;
+          break;
+        default:
+          filteredTagihan = allTagihan;
+          break;
+      }
+    });
   }
 
   @override
@@ -91,215 +119,189 @@ class _AccountPageState extends State<AccountPage> {
         backgroundColor: Config.primaryColor,
         automaticallyImplyLeading: false,
       ),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Personal Information Section
-            SliverToBoxAdapter(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SafeArea(
               child: Container(
                 padding: const EdgeInsets.all(10),
                 width: Config.screenWidth,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                      child: const Text(
-                        'Informasi Pribadi',
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Card(
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(15),
+                child: CustomScrollView(
+                  slivers: [
+                    // Personal Information Section
+                    SliverToBoxAdapter(
+                      child: Container(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Nama:',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  "${penghuni?.nama ?? 'No name'}",
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
+                            const SizedBox(height: 10),
+                            Container(
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: const Text(
+                                'Informasi Pribadi',
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black87),
+                              ),
                             ),
-                            const Divider(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Nomor Telepon:',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                            Config.spaceSmall,
+                            Card(
+                              elevation: 8,
+                              color: Colors.white,
+                              child: Padding(
+                                padding: const EdgeInsets.all(15),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Nama:',
+                                          style: TextStyle(
+                                              color: Colors.grey[800],
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "${penghuni?.nama ?? 'No name'}",
+                                          style: TextStyle(
+                                              color: Colors.grey[800],
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    const Divider(),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Nomor Telepon:',
+                                          style: TextStyle(
+                                              color: Colors.grey[800],
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "${penghuni?.telepon ?? 'No phone number'}",
+                                          style: TextStyle(
+                                              color: Colors.grey[800],
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                    const Divider(),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          'Nomor Kamar:',
+                                          style: TextStyle(
+                                              color: Colors.grey[800],
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        Text(
+                                          "${kos?.nomor ?? 'No room number'}",
+                                          style: TextStyle(
+                                              color: Colors.grey[800],
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  "${penghuni?.telepon ?? 'No phone number'}",
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ],
+                              ),
                             ),
-                            const Divider(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Nomor Kamar:',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  "${kos?.nomor ?? 'No room number'}",
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
-                                ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SliverToBoxAdapter(
+                      child: Config.spaceSmall,
+                    ),
+                    // Bills Section
+                    SliverToBoxAdapter(
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 5),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Tagihan ( $filter )",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: Colors.black),
+                            ),
+                            PopupMenuButton<String>(
+                              onSelected: (String result) {
+                                setState(() {
+                                  filter = result;
+                                  filterTagihan();
+                                });
+                              },
+                              itemBuilder: (BuildContext context) => [
+                                const PopupMenuItem<String>(
+                                    value: 'Semua', child: Text('Semua')),
+                                const PopupMenuItem<String>(
+                                    value: 'Belum Lunas',
+                                    child: Text('Belum Lunas')),
+                                const PopupMenuItem<String>(
+                                    value: 'Menunggu Konfirmasi',
+                                    child: Text('Menunggu Konfirmasi')),
+                                const PopupMenuItem<String>(
+                                    value: 'Lunas', child: Text('Lunas')),
                               ],
                             ),
                           ],
                         ),
                       ),
                     ),
+                    const SliverToBoxAdapter(
+                      child: Config.spaceSmall,
+                    ),
+                    filteredTagihan.isEmpty
+                        ? SliverToBoxAdapter(
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(vertical: 20),
+                              alignment: Alignment.center,
+                              child: const Text(
+                                'No bills available',
+                                style:
+                                    TextStyle(fontSize: 16, color: Colors.grey),
+                              ),
+                            ),
+                          )
+                        : SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final tagihan = filteredTagihan[index];
+                                if (tagihan.statusBayar == 0 &&
+                                    tagihan.fotoBuktiPembayaran == null) {
+                                  return TagihanBelumLunasCard(
+                                      tagihan: tagihan);
+                                } else if (tagihan.statusBayar == 0 &&
+                                    tagihan.fotoBuktiPembayaran != null) {
+                                  return TagihanPendingCard(tagihan: tagihan);
+                                } else if (tagihan.statusBayar == 1) {
+                                  return TagihanLunasCard(tagihan: tagihan);
+                                }
+                              },
+                              childCount: filteredTagihan.length,
+                            ),
+                          ),
                   ],
                 ),
               ),
             ),
-            const SliverToBoxAdapter(
-              child: Config.spaceSmall,
-            ),
-            // Unpaid Bills Section
-            SliverToBoxAdapter(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: const Text(
-                  "Tagihan Belum Lunas",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.black),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: Config.spaceSmall,
-            ),
-            tagihanBelumLunas.isEmpty
-                ? SliverToBoxAdapter(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 20),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'No unpaid bills available',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    ),
-                  )
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return TagihanBelumLunasCard(
-                            tagihan: tagihanBelumLunas[index]);
-                      },
-                      childCount: tagihanBelumLunas.length,
-                    ),
-                  ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 30),
-            ),
-            // Pending Confirmation Bills Section
-            SliverToBoxAdapter(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: const Text(
-                  "Tagihan Menunggu Konfirmasi",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.black),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: Config.spaceSmall,
-            ),
-            tagihanPending.isEmpty
-                ? SliverToBoxAdapter(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 20),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'No pending confirmations available',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    ),
-                  )
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return TagihanPendingCard(
-                            tagihan: tagihanPending[index]);
-                      },
-                      childCount: tagihanPending.length,
-                    ),
-                  ),
-            const SliverToBoxAdapter(
-              child: SizedBox(height: 30),
-            ),
-            // Paid Bills Section
-            SliverToBoxAdapter(
-              child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 10),
-                child: const Text(
-                  'Tagihan Lunas',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87),
-                ),
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: Config.spaceSmall,
-            ),
-            tagihanLunas.isEmpty
-                ? SliverToBoxAdapter(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: 20),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'No paid bills available',
-                        style: TextStyle(fontSize: 16, color: Colors.grey),
-                      ),
-                    ),
-                  )
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return TagihanLunasCard(tagihan: tagihanLunas[index]);
-                      },
-                      childCount: tagihanLunas.length,
-                    ),
-                  ),
-          ],
-        ),
-      ),
     );
   }
 }

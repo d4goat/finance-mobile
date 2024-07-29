@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/main.dart';
-import 'package:frontend/models/tagihan_model.dart';
 import 'package:frontend/provider/dio_provider.dart';
 import 'package:frontend/utils/config.dart';
 import 'package:provider/provider.dart';
@@ -87,16 +86,22 @@ class _AuthPageState extends State<AuthPage> {
                               shape: const RoundedRectangleBorder(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(5))),
-                              backgroundColor: Config.primaryColor,
+                              backgroundColor:
+                                  const Color.fromARGB(255, 16, 22, 86),
                             ),
                             onPressed: () async {
                               final data = await DioProvider().getPenghuni(
                                   _ktpController.text, _nomorController.text);
-                              if (data != null) {
+                              if (data != false) {
                                 Config.logger.i(data);
                                 auth.loginSuccess();
                                 MyApp.navigatorKey.currentState!
                                     .pushNamed('main');
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text(
+                                            'Input data salah, silahkan coba lagi')));
                               }
                             },
                             child: const Text(

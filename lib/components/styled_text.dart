@@ -19,8 +19,10 @@ class SuperTitleText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(text,
-        style: const TextStyle(
-            fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white));
+        style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[200]));
   }
 }
 
@@ -31,8 +33,10 @@ class TitleTextBold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(text,
-        style: const TextStyle(
-            fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white));
+        style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey[200]));
   }
 }
 
