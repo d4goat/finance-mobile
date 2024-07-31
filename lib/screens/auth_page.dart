@@ -96,7 +96,7 @@ class _AuthPageState extends State<AuthPage> {
                                 Config.logger.i(data);
                                 auth.loginSuccess();
                                 MyApp.navigatorKey.currentState!
-                                    .pushNamed('main');
+                                    .pushReplacementNamed('main');
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(

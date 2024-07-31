@@ -30,10 +30,9 @@ class _MainLayoutState extends State<MainLayout> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentPage,
-        backgroundColor: const Color.fromARGB(255, 229, 229, 229),
-        selectedItemColor: const Color.fromARGB(255, 0, 146, 133),
-        unselectedItemColor: const Color.fromARGB(255, 74, 85, 104),
-        showUnselectedLabels: true,
+   backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+          selectedItemColor: const Color.fromARGB(255, 31, 31, 31),
+          unselectedItemColor: const Color.fromARGB(255, 74, 85, 104),        showUnselectedLabels: true,
         unselectedFontSize: 14,
         selectedFontSize: 14,
         onTap: (page) {
