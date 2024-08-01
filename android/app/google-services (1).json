@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "425194646156",
+    "project_id": "kos-mcflyon",
+    "storage_bucket": "kos-mcflyon.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425194646156:android:90d5f023fcd2ea0580e9a9",
+        "android_client_info": {
+          "package_name": "com.example.kos_mcflyon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVlqoXfrSobhL3krCt2S8YNVNhY2-xKGo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
