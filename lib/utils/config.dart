@@ -38,7 +38,7 @@ class Config {
       borderRadius: BorderRadius.all(Radius.circular(8)),
       borderSide: BorderSide(color: Colors.red));
 
-  static const primaryColor = Color.fromARGB(255, 32, 92, 62);
+  static const primaryColor = Colors.teal;
 
   static final logger = Logger();
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kos_mcflyon/components/tagihan_card.dart';
 import 'package:kos_mcflyon/models/kos_model.dart';
-import 'package:kos_mcflyon/models/penghuni_model.dart';
 import 'package:kos_mcflyon/models/tagihan_model.dart';
 import 'package:kos_mcflyon/provider/dio_provider.dart';
 import 'package:kos_mcflyon/utils/config.dart';
@@ -15,7 +14,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Penghuni? penghuni;
   Kos? kos;
   String uuid = '';
   String nomor = '';
@@ -38,7 +36,6 @@ class _HomePageState extends State<HomePage> {
       if (response != null) {
         setState(() {
           kos = response;
-          penghuni = kos?.penghuni;
           isLoading = false;
         });
       } else {
@@ -94,10 +91,11 @@ class _HomePageState extends State<HomePage> {
                         ? SliverToBoxAdapter(
                             child: Column(
                               children: [
+                                const SizedBox(height: 10),
                                 SizedBox(
                                   height: 350,
                                   child: ClipRRect(
-                                    child: Image.asset('assets/illust2.png'),
+                                    child: Image.asset('assets/illust10.png'),
                                   ),
                                 ),
                                 Config.spaceSmall,
@@ -115,7 +113,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               Config.spaceSmall,
                               const Text(
-                                "Oops, terdapat tagihan yang belum dibayar nih. Bayar Yuk!",
+                                "Terdapat tagihan yang belum dibayar nih. Bayar Yuk!",
                                 style: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w600),
                               ),

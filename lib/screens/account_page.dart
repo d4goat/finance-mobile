@@ -40,10 +40,11 @@ class _AccountPageState extends State<AccountPage> {
 
     if (uuid.isNotEmpty) {
       final Kos? response = await DioProvider().getKos(uuid);
+      final Penghuni? res = await DioProvider().getPenghuniDetail(uuid);
       if (response != null) {
         setState(() {
           kos = response;
-          penghuni = kos?.penghuni;
+          penghuni = res;
           isLoading = false;
         });
       }

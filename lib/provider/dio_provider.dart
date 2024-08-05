@@ -1,12 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:kos_mcflyon/models/kos_model.dart';
+import 'package:kos_mcflyon/models/penghuni_model.dart';
 import 'package:kos_mcflyon/models/tagihan_model.dart';
 import 'package:kos_mcflyon/utils/config.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DioProvider {
   static BaseOptions options = BaseOptions(
-    baseUrl: Config.api + 'api',
+    baseUrl: Config.api + 'api/mobile',
     connectTimeout: const Duration(milliseconds: 200000),
     receiveTimeout: const Duration(milliseconds: 200000),
   );
@@ -22,11 +23,17 @@ class DioProvider {
 
       if (response.data != null && response.data['data'] != null) {
         var uuid = response.data['data']['uuid'];
+        var uuidPenghuni = response.data['data']['penghuni']['uuid'];
         var nomor = response.data['data']['nomor'];
 
         if (uuid != null) {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setString('uuid_kos', uuid);
+        }
+
+        if (uuidPenghuni != null) {
+          final SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setString('uuid_penghuni', uuidPenghuni);
         }
 
         if (nomor != null) {
@@ -55,6 +62,19 @@ class DioProvider {
       }
     } catch (error) {
       Config.logger.f('Error fetching Kos data: $error');
+    }
+    return null;
+  }
+
+  Future<Penghuni?> getPenghuniDetail(dynamic uuid) async {
+    try {
+      Response response = await dio.post('/get_penghuni', data: {'uuid': uuid});
+
+      if (response.data != null) {
+        return Penghuni.fromJson(response.data['data']);
+      }
+    } catch (err) {
+      Config.logger.f('Error fething data Penghuni');
     }
     return null;
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:kos_mcflyon/main.dart';
 import 'package:kos_mcflyon/provider/dio_provider.dart';
 import 'package:kos_mcflyon/utils/config.dart';
@@ -32,7 +33,7 @@ class _AuthPageState extends State<AuthPage> {
                 SizedBox(
                   child: ClipRRect(
                     child: Image.asset(
-                      'assets/illust1.jpg',
+                      'assets/illust8.jpg',
                     ),
                   ),
                 ),
@@ -87,8 +88,7 @@ class _AuthPageState extends State<AuthPage> {
                                   shape: const RoundedRectangleBorder(
                                       borderRadius:
                                           BorderRadius.all(Radius.circular(5))),
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 16, 22, 86),
+                                  backgroundColor: HexColor('#008c8a'),
                                 ),
                                 onPressed: () async {
                                   final data = await DioProvider().getPenghuni(
@@ -107,11 +107,11 @@ class _AuthPageState extends State<AuthPage> {
                                   }
                                 },
                                 child: const Text(
-                                  "CARI",
+                                  "MASUK",
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w600,
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w700,
                                       letterSpacing: 4),
                                 )),
                           );
